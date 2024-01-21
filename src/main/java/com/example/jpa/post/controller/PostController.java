@@ -55,6 +55,7 @@ public class PostController {
         log.info("deletePost = {}", postId);
 
         postService.deleteByPostId(Long.parseLong(postId));
+        System.out.println();
 
         return ResponseEntity.ok().build();
     }
@@ -70,5 +71,5 @@ public class PostController {
 
         return ResponseEntity.ok().build();
     }
-    //PR test 123
+    //PR test 123123
 }
