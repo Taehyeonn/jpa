@@ -6,6 +6,9 @@ import com.example.jpa.post.dto.response.PostResponseDto;
 import com.example.jpa.post.service.PostService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -70,5 +73,25 @@ public class PostController {
         postService.updatePost(Long.valueOf(postId), postRequestDto);
 
         return ResponseEntity.ok().build();
+    }
+
+    // @PageableDefault(page = 1) : page는 기본으로 1페이지를 보여준다.
+    @GetMapping("/posts/paging")
+    public ResponseEntity<Object> paging(@PageableDefault(page = 1) Pageable pageable) {
+        Page<PostResponseDto> postsPages = postService.paging(pageable);
+
+        /**
+         * blockLimit : page 개수 설정
+         * 현재 사용자가 선택한 페이지 앞 뒤로 3페이지씩만 보여준다.
+         * ex : 현재 사용자가 4페이지라면 2, 3, (4), 5, 6
+         */
+        int blockLimit = 3;
+        int startPage = (((int) Math.ceil(((double) pageable.getPageNumber() / blockLimit))) - 1) * blockLimit + 1;
+        int endPage = Math.min((startPage + blockLimit - 1), postsPages.getTotalPages());
+
+        log.info("postsPages = {}", postsPages);
+        log.info("startPage = {}", startPage);
+        log.info("endPage = {}", endPage);
+        return ResponseEntity.ok(postsPages);
     }
 }
